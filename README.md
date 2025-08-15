@@ -1,150 +1,174 @@
-# HWiNFO Log Analyzer
+# HWiNFO Analyzer - Versión Mejorada
 
-Un script de Python para detectar anomalías, patrones y picos de temperatura/voltaje en logs CSV de HWiNFO, ayudando a diagnosticar problemas de hardware.
+Analizador científicamente preciso y modular para logs CSV de HWiNFO con criterios térmicos actualizados basados en especificaciones de fabricantes (Intel, AMD, NVIDIA) 2024/2025.
 
-## Características
+## 🚀 Mejoras Principales
 
-- **Detección de Anomalías**: Utiliza múltiples algoritmos (Isolation Forest, métodos estadísticos, IQR)
-- **Análisis de Patrones**: Detecta tendencias, patrones cíclicos y puntos de cambio
-- **Detección de Picos**: Identifica picos de temperatura y voltaje críticos
-- **Diagnóstico Automático**: Genera un diagnóstico comprensivo del estado del sistema
-- **Visualizaciones**: Crea gráficos de tendencias y anomalías
-- **Informes Detallados**: Genera reportes en texto plano con resultados
+### ✅ **Criterios Térmicos Científicos**
+- **CPU Intel**: Límites basados en TjMax real (100-105°C)
+- **CPU AMD**: Límites para Ryzen 7000 (95°C) y arquitecturas anteriores
+- **GPU NVIDIA**: Umbrales de throttling reales (83-87°C)
+- **GPU AMD**: Tolerancia térmica superior (95-100°C)
 
-## Instalación
+### ✅ **Arquitectura Modular**
+- `thermal_thresholds.py` - Umbrales térmicos por fabricante
+- `data_processor.py` - Procesamiento robusto de CSV
+- `anomaly_detector.py` - Detección avanzada de anomalías
+- `thermal_analyzer.py` - Análisis térmico especializado
+- `improved_analyzer.py` - Analizador principal mejorado
 
+### ✅ **Análisis Más Preciso**
+- Separación clara entre CPU y GPU
+- Detección automática de fabricante (Intel/AMD/NVIDIA)
+- Análisis por zonas térmicas específicas
+- Puntuación ponderada de salud del sistema
+
+## 📊 Comparación: Antes vs Después
+
+### **Análisis Anterior** ❌
+```
+Estado del Sistema: CRÍTICO (0/100)
+Problemas: CPU a 70°C marcado como crítico
+Resultado: Falsos positivos masivos
+```
+
+### **Análisis Mejorado** ✅
+```
+System Health: [POOR] POOR (48.8/100)
+Component Status:
+  CPU: good (70°C es normal bajo carga)
+  GPU: good (temperaturas dentro de rango)
+  VOLTAGE: poor (inestabilidad real detectada)
+```
+
+## 🌡️ Nuevos Criterios Térmicos
+
+### **CPU (Intel/AMD)**
+- **Excelente**: < 50°C (idle)
+- **Bueno**: 50-80°C (carga normal)
+- **Elevado**: 80-85°C (necesita monitoreo)
+- **Advertencia**: 85-90/95°C (según fabricante)
+- **Crítico**: > 95°C (Intel) / > 90°C (AMD)
+
+### **GPU (NVIDIA/AMD)**
+- **Excelente**: < 50°C (idle)
+- **Bueno**: 50-75°C (NVIDIA) / 50-80°C (AMD)
+- **Elevado**: 75-80°C (NVIDIA) / 80-85°C (AMD)
+- **Advertencia**: 80-85°C (NVIDIA) / 85-90°C (AMD)
+- **Crítico**: > 85°C (NVIDIA) / > 90°C (AMD)
+
+### **Voltajes**
+- **Normal**: ±3% variación de nominal
+- **Advertencia**: ±5% variación
+- **Crítico**: ±8% variación
+
+## 🛠️ Uso
+
+### **Análisis Rápido**
 ```bash
-# Instalar dependencias
-pip install -r requirements.txt
+python improved_analyzer.py test.CSV
 ```
 
-## Uso
-
-### Análisis Rápido (Recomendado para principiantes)
+### **Análisis Completo con Reporte**
 ```bash
-# Análisis rápido con resultados en consola
-python quick_analysis.py test.CSV
+python improved_analyzer.py test.CSV --output resultado_detallado
 ```
 
-### Análisis Completo
-```bash
-# Análisis básico
-python hwinfo_analyzer.py test.CSV
+### **Script Principal**
+**`improved_analyzer.py`** - Analizador modular y científicamente preciso
 
-# Especificar directorio de salida
-python hwinfo_analyzer.py test.CSV --output mi_analisis
+## 📈 Ejemplo de Salida Mejorada
 
-# Usar método de detección diferente
-python hwinfo_analyzer.py test.CSV --method statistical
+```
+System Health: [POOR] POOR
+Health Score: 48.8/100
 
-# Ver ayuda
-python hwinfo_analyzer.py --help
+Component Status:
+  CPU: good
+  GPU: good  
+  SYSTEM_THERMAL: excellent
+  VOLTAGE: poor
+
+WARNINGS:
+  - GPU temperatures are elevated
+
+RECOMMENDATIONS:
+  - GPU is running hot
+  - Monitor GPU temperatures during gaming
+  - Check GPU fan operation
 ```
 
-### Uso Programático
-```python
-from hwinfo_analyzer import HWInfoAnalyzer
+## 🔍 Detalles del Análisis
 
-# Crear analizador
-analyzer = HWInfoAnalyzer('test.CSV')
+### **Detección de Componentes**
+- **CPU**: Sensores con "CPU", "CORE", "CCD", "IOD", "TCTL", "TDIE"
+- **GPU**: Sensores con "GPU", "GRAPHICS", "VGA"
+- **Sistema**: VRM, chipset, motherboard, ambient
 
-# Ejecutar análisis completo
-analyzer.run_full_analysis('resultados')
+### **Algoritmos de Anomalías**
+- **Isolation Forest** (ML) - Para patrones complejos
+- **Z-Score Estadístico** - Para distribuciones normales
+- **IQR** - Robusto contra outliers
 
-# O ejecutar análisis individuales
-analyzer.load_data()
-anomalies = analyzer.detect_anomalies()
-patterns = analyzer.detect_patterns()
-peaks = analyzer.detect_peaks()
-diagnosis = analyzer.generate_diagnosis()
+### **Puntuación de Salud**
+- **CPU**: 40% del peso total
+- **GPU**: 30% del peso total
+- **Sistema**: 15% del peso total
+- **Voltajes**: 15% del peso total
+
+## 🚨 Interpretación de Resultados
+
+### **Health Score**
+- **90-100**: Excelente - Sistema funcionando óptimamente
+- **75-89**: Bueno - Funcionamiento normal
+- **60-74**: Regular - Necesita monitoreo
+- **40-59**: Malo - Problemas que necesitan atención
+- **0-39**: Crítico - Acción inmediata requerida
+
+### **Component Status**
+- **excellent**: Sin problemas detectados
+- **good**: Funcionamiento normal
+- **fair**: Algunas preocupaciones menores
+- **poor**: Problemas significativos
+- **critical**: Requiere atención inmediata
+
+## 🔧 Solución de Problemas Comunes
+
+### **CPU Temperatures**
+```
+good (70°C) → Normal bajo carga
+warning (85°C) → Mejorar refrigeración
+critical (95°C) → Acción inmediata
 ```
 
-## Salidas del Análisis
+### **GPU Temperatures**
+```
+good (75°C) → Normal para gaming
+warning (80°C) → Verificar fans
+critical (85°C+) → Reducir carga/mejorar cooling
+```
 
-El script genera los siguientes archivos en el directorio de salida:
+### **Voltage Issues**
+```
+poor → Revisar PSU y conexiones
+critical → Posible fallo de fuente
+```
 
-- `analysis_report.txt`: Reporte detallado con diagnóstico del sistema
-- `plots/temperature_trends.png`: Gráficos de tendencias de temperatura
-- `plots/voltage_trends.png`: Gráficos de tendencias de voltaje  
-- `plots/anomaly_summary.png`: Resumen de anomalías por componente
+## 🎯 Basado en Especificaciones Reales
 
-## Interpretación de Resultados
+Los umbrales se basan en documentación oficial de:
+- **Intel**: TjMax 100-105°C para CPUs modernos
+- **AMD**: 95°C para Ryzen 7000, 89°C para 7800X3D
+- **NVIDIA**: Throttling típico a 83-87°C
+- **AMD GPU**: Diseñadas para hasta 95-100°C
 
-### Puntuación de Salud del Sistema
-- **90-100**: Excelente - Sistema funcionando normalmente
-- **75-89**: Bueno - Funcionamiento normal con anomalías menores
-- **50-74**: Regular - Algunos problemas detectados
-- **25-49**: Malo - Problemas significativos
-- **0-24**: Crítico - Problemas graves que requieren atención inmediata
+## 📚 Fuentes Técnicas
 
-### Detección de Problemas
+- Intel Temperature Information (2024)
+- AMD Ryzen Thermal Specifications
+- NVIDIA GPU Temperature Guidelines
+- Hardware monitoring best practices
 
-**Temperaturas:**
-- CPU > 85°C: Sobrecalentamiento crítico
-- GPU > 83°C: Sobrecalentamiento de GPU
-- Cualquier componente > 90°C: Temperatura peligrosa
+---
 
-**Voltajes:**
-- Variación > 5%: Inestabilidad de voltaje
-- Picos frecuentes: Posibles problemas de fuente de alimentación
-
-## Métodos de Detección
-
-### Isolation Forest (Predeterminado)
-- Método de machine learning para detección de anomalías
-- Efectivo para datos multidimensionales
-- Contamination rate: 5%
-
-### Estadístico
-- Basado en Z-score
-- Considera anomalías valores con |Z-score| > 3
-- Bueno para distribuciones normales
-
-### IQR (Interquartile Range)
-- Método robusto basado en cuartiles
-- Detecta valores fuera de Q1-1.5*IQR y Q3+1.5*IQR
-- Menos sensible a valores extremos
-
-## Estructura del CSV de HWiNFO
-
-El script espera un CSV con:
-- Columnas 'Date' y 'Time' para timestamps
-- Columnas de temperatura con '[°C]' en el nombre
-- Columnas de voltaje con '[V]' en el nombre
-- Formato de fecha: DD.MM.YYYY HH:MM:SS.fff
-
-## Diagnósticos Comunes
-
-### Sobrecalentamiento
-- **Síntomas**: Temperaturas > 85°C, picos frecuentes
-- **Causas**: Refrigeración inadecuada, pasta térmica vieja, ventiladores defectuosos
-- **Soluciones**: Limpiar sistema, cambiar pasta térmica, verificar ventiladores
-
-### Inestabilidad de Voltaje
-- **Síntomas**: Variaciones > 5%, picos de voltaje
-- **Causas**: Fuente de alimentación defectuosa, problemas de VRM
-- **Soluciones**: Verificar fuente de alimentación, revisar conexiones
-
-### Thermal Throttling
-- **Síntomas**: Temperaturas cercanas a límites, rendimiento reducido
-- **Causas**: Refrigeración insuficiente para la carga de trabajo
-- **Soluciones**: Mejorar refrigeración, reducir overclock
-
-## Limitaciones
-
-- Requiere logs CSV de HWiNFO con formato específico
-- La precisión depende de la duración y frecuencia del muestreo
-- Los umbrales están optimizados para hardware de consumo típico
-- No considera contexto de carga de trabajo (gaming vs idle)
-
-## Scripts Disponibles
-
-### `hwinfo_analyzer.py` 
-Script principal que genera análisis completo con gráficos y reportes detallados.
-
-### `quick_analysis.py`
-Script de análisis rápido que muestra resultados directamente en consola, ideal para diagnósticos rápidos sin generar archivos.
-
-## Soporte
-
-Para problemas o mejoras, consulta la documentación de HWiNFO o ajusta los umbrales en el código según tu hardware específico.
+**Nota**: Este analizador mejorado proporciona evaluaciones mucho más precisas basadas en especificaciones reales de fabricantes, eliminando falsos positivos y proporcionando diagnósticos útiles.
