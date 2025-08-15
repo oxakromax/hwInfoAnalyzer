@@ -109,29 +109,53 @@ class HWInfoDataProcessor:
         """Identify different types of sensor columns."""
         all_columns = self.df.columns.tolist()
         
-        # Temperature columns (handle different encodings for degree symbol)
-        temp_patterns = ['[°C]', '[�C]', 'Temperature', 'Temp']
+        # Temperature columns (handle different encodings for degree symbol and languages)
+        temp_patterns = ['[°C]', '[�C]', 'TEMPERATURE', 'TEMP', 'TEMPERATURA']
         self.temp_columns = [col for col in all_columns 
-                           if any(pattern in col for pattern in temp_patterns)]
+                           if any(pattern in col.upper() for pattern in temp_patterns)]
+        
+        # Filter out non-actual temperature readings (distance to TjMAX, critical flags)
+        exclude_temp_patterns = ['DISTANCIA', 'DISTANCE', 'CRÍTICA', 'CRITICAL', 'YES/NO', 'DESACELERACIÓN', 'THROTTLE', 'TJMAX']
+        self.temp_columns = [col for col in self.temp_columns 
+                           if not any(exclude_pattern in col.upper() for exclude_pattern in exclude_temp_patterns)]
         
         # Categorize temperature columns
+        # Support for traditional cores and Intel hybrid architecture  
+        cpu_patterns = ['CPU', 'CORE', 'CCD', 'IOD', 'TCTL', 'TDIE', 'P-CORE', 'E-CORE', 'NÚCLEO', 'NÚCLEOS']
         self.cpu_temp_columns = [col for col in self.temp_columns 
-                               if any(cpu_term in col.upper() for cpu_term in 
-                                     ['CPU', 'CORE', 'CCD', 'IOD', 'TCTL', 'TDIE'])]
+                               if any(cpu_term in col.upper() for cpu_term in cpu_patterns)]
         
+        # Also add individual P-core and E-core columns for hybrid Intel CPUs
+        individual_cores = [col for col in all_columns 
+                          if (('P-core' in col or 'E-core' in col) and 
+                              '°C' in col and 
+                              'Distancia' not in col and 
+                              'Yes/No' not in col and
+                              'crítica' not in col.lower())]
+        
+        # Add individual cores to both temp_columns and cpu_temp_columns
+        self.temp_columns.extend(individual_cores)
+        self.cpu_temp_columns.extend(individual_cores)
+        
+        # Remove duplicates
+        self.temp_columns = list(set(self.temp_columns))
+        self.cpu_temp_columns = list(set(self.cpu_temp_columns))
+        
+        gpu_patterns = ['GPU', 'GRAPHICS', 'VGA', 'GT']
         self.gpu_temp_columns = [col for col in self.temp_columns 
-                               if any(gpu_term in col.upper() for gpu_term in 
-                                     ['GPU', 'GRAPHICS', 'VGA'])]
+                               if any(gpu_term in col.upper() for gpu_term in gpu_patterns)]
         
         self.motherboard_temp_columns = [col for col in self.temp_columns 
                                        if col not in self.cpu_temp_columns + self.gpu_temp_columns]
         # Alias for system temperatures (used by visualizer)
         self.system_temp_columns = self.motherboard_temp_columns
         
-        # Voltage columns (exclude VID, RPM, MHz, etc.)
-        exclude_patterns = ['VID', 'RPM', 'MHZ', 'RATIO', 'CLOCK', 'USAGE', 'LOAD']
+        # Voltage columns (include VID for modern Intel, exclude RPM, MHz, etc.)
+        exclude_patterns = ['RPM', 'MHZ', 'RATIO', 'CLOCK', 'USAGE', 'LOAD', 'RELOJ', 'VELOCIDAD']
+        voltage_patterns = ['[V]', 'VID', 'VOLTAJE', 'VOLTAGE']
         self.voltage_columns = [col for col in all_columns 
-                              if '[V]' in col and not any(pattern in col.upper() for pattern in exclude_patterns)]
+                              if any(v_pattern in col.upper() for v_pattern in voltage_patterns) 
+                              and not any(pattern in col.upper() for pattern in exclude_patterns)]
     
     def _clean_numeric_data(self):
         """Clean and convert numeric columns."""

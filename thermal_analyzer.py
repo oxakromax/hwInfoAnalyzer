@@ -14,18 +14,23 @@ class ThermalAnalyzer:
         self.thresholds = ThermalThresholds()
     
     def analyze_cpu_temperatures(self, data_processor, anomaly_detector):
-        """Analyze CPU temperature behavior."""
+        """Analyze CPU temperature behavior with support for hybrid architectures."""
         cpu_analysis = {
             'overall_status': 'unknown',
             'individual_cores': {},
             'thermal_events': [],
             'recommendations': [],
-            'health_score': 100
+            'health_score': 100,
+            'cpu_architecture': 'unknown'
         }
         
         if not data_processor.cpu_temp_columns:
             cpu_analysis['overall_status'] = 'no_data'
             return cpu_analysis
+        
+        # Detect CPU architecture
+        cpu_vendor = ThermalThresholds.detect_cpu_vendor(data_processor.cpu_temp_columns)
+        cpu_analysis['cpu_architecture'] = cpu_vendor
         
         all_cpu_temps = []
         core_analyses = {}
@@ -45,18 +50,25 @@ class ThermalAnalyzer:
             max_temp = data.max()
             min_temp = data.min()
             
-            # Determine CPU type (basic heuristic)
-            cpu_type = 'generic'
-            if any(intel_term in col.upper() for intel_term in ['INTEL', 'CORE']):
-                cpu_type = 'intel'
-            elif any(amd_term in col.upper() for amd_term in ['AMD', 'RYZEN']):
-                cpu_type = 'amd'
-            
-            mean_classification = self.thresholds.classify_cpu_temperature(mean_temp, cpu_type)
-            max_classification = self.thresholds.classify_cpu_temperature(max_temp, cpu_type)
+            # Determine core type for hybrid CPUs and classify temperatures
+            core_type = 'standard'
+            if cpu_vendor == 'intel_hybrid':
+                if 'P-CORE' in col.upper():
+                    core_type = 'p_core'
+                elif 'E-CORE' in col.upper():
+                    core_type = 'e_core'
+                mean_classification = ThermalThresholds.classify_hybrid_cpu_temperature(mean_temp, core_type)
+                max_classification = ThermalThresholds.classify_hybrid_cpu_temperature(max_temp, core_type)
+                cpu_type = 'intel_hybrid'
+            else:
+                # Use traditional classification
+                cpu_type = cpu_vendor if cpu_vendor in ['intel', 'amd'] else 'generic'
+                mean_classification = self.thresholds.classify_cpu_temperature(mean_temp, cpu_type)
+                max_classification = self.thresholds.classify_cpu_temperature(max_temp, cpu_type)
             
             core_analysis = {
                 'sensor_name': col,
+                'core_type': core_type,
                 'mean_temp': mean_temp,
                 'max_temp': max_temp,
                 'min_temp': min_temp,
@@ -68,17 +80,31 @@ class ThermalAnalyzer:
                 'issues': []
             }
             
-            # Identify issues
-            thresholds = self.thresholds.get_cpu_thresholds(cpu_type)
+            # Identify issues using appropriate thresholds
+            if cpu_vendor == 'intel_hybrid':
+                thresholds = ThermalThresholds.CPU_THRESHOLDS['intel_hybrid']
+                if core_type == 'p_core':
+                    critical_thresh = thresholds['p_core_critical']
+                    warning_thresh = thresholds['p_core_warning']
+                    normal_thresh = thresholds['p_core_normal_max']
+                else:  # e_core
+                    critical_thresh = thresholds['e_core_critical']
+                    warning_thresh = thresholds['e_core_warning']
+                    normal_thresh = thresholds['e_core_normal_max']
+            else:
+                thresholds = self.thresholds.get_cpu_thresholds(cpu_type)
+                critical_thresh = thresholds['critical']
+                warning_thresh = thresholds['warning']
+                normal_thresh = thresholds['normal_load_max']
             
-            if max_temp > thresholds['critical']:
-                core_analysis['issues'].append(f"Critical temperature reached: {max_temp:.1f}°C")
+            if max_temp > critical_thresh:
+                core_analysis['issues'].append(f"Critical temperature reached: {max_temp:.1f}°C ({core_type})")
                 cpu_analysis['health_score'] -= 30
-            elif max_temp > thresholds['warning']:
-                core_analysis['issues'].append(f"Warning temperature reached: {max_temp:.1f}°C")
+            elif max_temp > warning_thresh:
+                core_analysis['issues'].append(f"Warning temperature reached: {max_temp:.1f}°C ({core_type})")
                 cpu_analysis['health_score'] -= 15
-            elif mean_temp > thresholds['normal_load_max']:
-                core_analysis['issues'].append(f"Elevated average temperature: {mean_temp:.1f}°C")
+            elif mean_temp > normal_thresh:
+                core_analysis['issues'].append(f"Elevated average temperature: {mean_temp:.1f}°C ({core_type})")
                 cpu_analysis['health_score'] -= 10
             
             if anomalies['anomaly_percentage'] > 10:

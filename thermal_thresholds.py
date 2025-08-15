@@ -16,6 +16,17 @@ class ThermalThresholds:
             'critical': 95,         # Critical at 95°C (most Intel CPUs max at 100-105°C)
             'tj_max': 100          # Typical TjMax for most Intel CPUs
         },
+        'intel_hybrid': {  # 12th gen+ Intel with P-cores and E-cores
+            'p_core_idle_max': 50,
+            'p_core_normal_max': 85,  # P-cores can handle higher temps
+            'p_core_warning': 90,
+            'p_core_critical': 100,   # Based on TjMax 100-105°C
+            'e_core_idle_max': 45,
+            'e_core_normal_max': 80,  # E-cores typically run cooler
+            'e_core_warning': 85,
+            'e_core_critical': 95,
+            'tj_max': 100
+        },
         'amd': {
             'idle_max': 50,         # AMD Ryzen idle temps
             'normal_load_max': 80,  # Safe sustained load temp
@@ -161,3 +172,50 @@ class ThermalThresholds:
         }
         
         return classification, advice.get(classification, [])
+    
+    @staticmethod
+    def detect_cpu_vendor(columns):
+        """Detect CPU vendor and architecture from column names."""
+        column_text = ' '.join(columns).upper()
+        
+        # AMD detection
+        if any(pattern in column_text for pattern in ['CCD', 'IOD', 'TCTL', 'TDIE']):
+            return 'amd'
+        
+        # Intel hybrid architecture detection (12th gen+)
+        if 'P-CORE' in column_text and 'E-CORE' in column_text:
+            return 'intel_hybrid'
+        
+        # Intel detection (less specific patterns)
+        if any(pattern in column_text for pattern in ['CORE', 'CPU', 'VID']):
+            return 'intel'
+        
+        return 'generic'
+    
+    @staticmethod
+    def classify_hybrid_cpu_temperature(temperature, core_type='p_core'):
+        """Classify temperature for Intel hybrid architecture CPUs."""
+        thresholds = ThermalThresholds.CPU_THRESHOLDS['intel_hybrid']
+        
+        if core_type.lower().startswith('p'):  # P-core
+            if temperature < thresholds['p_core_idle_max']:
+                return 'excellent'
+            elif temperature < thresholds['p_core_normal_max']:
+                return 'good'
+            elif temperature < thresholds['p_core_warning']:
+                return 'elevated'
+            elif temperature < thresholds['p_core_critical']:
+                return 'warning'
+            else:
+                return 'critical'
+        else:  # E-core
+            if temperature < thresholds['e_core_idle_max']:
+                return 'excellent'
+            elif temperature < thresholds['e_core_normal_max']:
+                return 'good'
+            elif temperature < thresholds['e_core_warning']:
+                return 'elevated'
+            elif temperature < thresholds['e_core_critical']:
+                return 'warning'
+            else:
+                return 'critical'
