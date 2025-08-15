@@ -1,0 +1,16 @@
+PRESET: COMPREHENSIVE
+========================================
+
+Description: Complete analysis with all methods enabled
+
+Usage:
+python hwinfo-analyzer.py test.CSV --config preset_comprehensive.json
+
+Enabled methods:
+--------------------
+[YES] Isolation Forest
+[YES] Z-Score
+[YES] IQR
+[YES] Thermal Analysis
+[YES] Voltage Analysis
+[YES] Visualizations

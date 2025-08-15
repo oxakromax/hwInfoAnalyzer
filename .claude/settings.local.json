@@ -5,7 +5,10 @@
       "WebSearch",
       "Bash(del hwinfo_analyzer.py)",
       "Bash(rm:*)",
-      "Bash(mv:*)"
+      "Bash(mv:*)",
+      "Bash(del debug_columns.py)",
+      "Bash(mkdir:*)",
+      "Bash(del:*)"
     ],
     "defaultMode": "acceptEdits"
   }

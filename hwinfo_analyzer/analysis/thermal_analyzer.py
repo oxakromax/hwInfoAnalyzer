@@ -5,7 +5,7 @@ Analyzes temperature data and provides hardware-specific diagnostics.
 
 import numpy as np
 import pandas as pd
-from thermal_thresholds import ThermalThresholds
+from ..core.thermal_thresholds import ThermalThresholds
 
 class ThermalAnalyzer:
     """Analyzes thermal behavior of hardware components."""

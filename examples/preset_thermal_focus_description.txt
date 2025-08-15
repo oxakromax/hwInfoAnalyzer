@@ -1,0 +1,15 @@
+PRESET: THERMAL_FOCUS
+========================================
+
+Description: Focus on thermal analysis
+
+Usage:
+python hwinfo-analyzer.py test.CSV --config preset_thermal_focus.json
+
+Enabled methods:
+--------------------
+[YES] Isolation Forest
+[YES] Z-Score
+[YES] IQR
+[YES] Thermal Analysis
+[YES] Visualizations

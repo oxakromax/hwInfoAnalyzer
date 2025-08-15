@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
-Improved HWiNFO Analyzer
-Modular and scientifically accurate analysis of HWiNFO logs.
+HWiNFO Analyzer
+A comprehensive tool for analyzing HWiNFO CSV logs with thermal monitoring,
+anomaly detection, and hardware diagnostics.
 """
 
 import argparse
@@ -12,15 +13,15 @@ try:
 except ImportError:
     from pathlib2 import Path
 
-from data_processor import HWInfoDataProcessor
-from anomaly_detector import AnomalyDetector
-from thermal_analyzer import ThermalAnalyzer
-from thermal_thresholds import ThermalThresholds
-from visualizer import HWiNFOVisualizer
-from analysis_methods import AnalysisMethodSelector, create_default_config
+from .data_processor import HWInfoDataProcessor
+from .thermal_thresholds import ThermalThresholds
+from ..analysis.anomaly_detector import AnomalyDetector
+from ..analysis.thermal_analyzer import ThermalAnalyzer
+from ..visualization.visualizer import HWiNFOVisualizer
+from ..config.analysis_methods import AnalysisMethodSelector, create_default_config
 
-class ImprovedHWInfoAnalyzer:
-    """Main analyzer class with improved accuracy and modularity."""
+class HWInfoAnalyzer:
+    """Main analyzer class for HWiNFO log analysis."""
     
     def __init__(self, csv_file, config_file=None, enable_plots=True, output_dir=None):
         self.csv_file = csv_file
@@ -45,7 +46,7 @@ class ImprovedHWInfoAnalyzer:
     
     def run_analysis(self):
         """Run complete analysis pipeline with configurable methods."""
-        print("Starting Improved HWiNFO Analysis...")
+        print("Starting HWiNFO Analysis...")
         print("=" * 60)
         
         # Print configuration
@@ -447,7 +448,7 @@ class ImprovedHWInfoAnalyzer:
         print(f"\nAnalysis completed: {diagnosis['timestamp']}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Improved HWiNFO CSV Log Analyzer with Visualizations')
+    parser = argparse.ArgumentParser(description='HWiNFO CSV Log Analyzer with Thermal Monitoring and Visualizations')
     parser.add_argument('csv_file', help='Path to HWiNFO CSV log file')
     parser.add_argument('--output', '-o', help='Output directory for detailed reports and plots')
     parser.add_argument('--config', '-c', help='Configuration file for analysis methods')
@@ -475,7 +476,7 @@ def main():
     output_dir = args.output or "analysis_output"
     
     # Run analysis
-    analyzer = ImprovedHWInfoAnalyzer(
+    analyzer = HWInfoAnalyzer(
         args.csv_file, 
         config_file=config_file,
         enable_plots=not args.no_plots,

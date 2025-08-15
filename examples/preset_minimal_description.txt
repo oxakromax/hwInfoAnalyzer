@@ -1,0 +1,14 @@
+PRESET: MINIMAL
+========================================
+
+Description: Fast analysis with essential methods
+
+Usage:
+python hwinfo-analyzer.py test.CSV --config preset_minimal.json
+
+Enabled methods:
+--------------------
+[YES] Isolation Forest
+[YES] Thermal Analysis
+[YES] Voltage Analysis
+[YES] Visualizations

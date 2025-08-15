@@ -12,23 +12,17 @@ with open("requirements.txt", "r", encoding="utf-8") as fh:
 
 setup(
     name="hwinfo-analyzer",
-    version="2.0.0",
-    author="HWiNFO Analyzer Team",
-    description="Analizador científicamente preciso para logs CSV de HWiNFO",
+    version="1.0.0",
+    author="HWiNFO Analyzer Contributors",
+    description="A comprehensive tool for analyzing HWiNFO CSV logs with thermal monitoring and hardware diagnostics",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    py_modules=[
-        "improved_analyzer",
-        "thermal_thresholds", 
-        "data_processor",
-        "anomaly_detector",
-        "thermal_analyzer"
-    ],
+    packages=find_packages(),
     install_requires=requirements,
     python_requires=">=3.8",
     entry_points={
         "console_scripts": [
-            "hwinfo-analyzer=improved_analyzer:main",
+            "hwinfo-analyzer=hwinfo_analyzer.cli:main",
         ],
     },
     classifiers=[

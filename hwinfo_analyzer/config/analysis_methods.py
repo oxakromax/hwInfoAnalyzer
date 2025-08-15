@@ -1,6 +1,6 @@
 """
-Selector y configurador de métodos de análisis para HWiNFO
-Permite seleccionar qué métodos ejecutar por defecto o específicos
+Analysis Method Selector for HWiNFO
+Configurable selection of analysis methods and visualization options
 """
 
 from dataclasses import dataclass
@@ -13,22 +13,22 @@ except ImportError:
 
 @dataclass
 class AnalysisConfig:
-    """Configuración para métodos de análisis"""
-    # Métodos de anomalías
+    """Configuration for analysis methods"""
+    # Anomaly detection methods
     enable_isolation_forest: bool = True
     enable_zscore: bool = True
     enable_iqr: bool = True
     
-    # Análisis térmico
+    # Thermal analysis
     enable_thermal_analysis: bool = True
     enable_peak_detection: bool = True
     enable_trend_analysis: bool = True
     
-    # Análisis de voltajes
+    # Voltage analysis
     enable_voltage_analysis: bool = True
     enable_voltage_stability: bool = True
     
-    # Visualizaciones
+    # Visualizations
     enable_all_plots: bool = True
     enable_temperature_trends: bool = True
     enable_distributions: bool = True
@@ -38,25 +38,25 @@ class AnalysisConfig:
     enable_dashboard: bool = True
     enable_correlations: bool = True
     
-    # Configuraciones avanzadas
+    # Advanced configurations
     isolation_forest_contamination: float = 0.1
     zscore_threshold: float = 3.0
     iqr_multiplier: float = 1.5
     
-    # Configuraciones de visualización
+    # Visualization configurations
     plot_resolution_dpi: int = 300
     max_sensors_per_plot: int = 6
     sample_rate_for_heatmap: int = 100
 
 class AnalysisMethodSelector:
-    """Selector y configurador de métodos de análisis"""
+    """Analysis method selector and configurator"""
     
     def __init__(self, config_file: str = None):
         self.config_file = config_file
         self.config = self._load_or_create_config()
     
     def _load_or_create_config(self) -> AnalysisConfig:
-        """Carga configuración desde archivo o crea una por defecto"""
+        """Load configuration from file or create default"""
         if self.config_file and Path(self.config_file).exists():
             try:
                 with open(self.config_file, 'r', encoding='utf-8') as f:
@@ -65,29 +65,29 @@ class AnalysisMethodSelector:
             except Exception as e:
                 print(f"Error loading config: {e}. Using default configuration.")
         
-        # Configuración por defecto (TODOS LOS MÉTODOS ACTIVADOS)
+        # Default configuration (ALL METHODS ENABLED)
         return AnalysisConfig()
     
     def save_config(self, filename: str = None):
-        """Guarda la configuración actual a archivo"""
+        """Save current configuration to file"""
         config_file = filename or self.config_file or "analysis_config.json"
         
         config_dict = {
-            # Métodos de anomalías
+            # Anomaly methods
             'enable_isolation_forest': self.config.enable_isolation_forest,
             'enable_zscore': self.config.enable_zscore,
             'enable_iqr': self.config.enable_iqr,
             
-            # Análisis térmico
+            # Thermal analysis
             'enable_thermal_analysis': self.config.enable_thermal_analysis,
             'enable_peak_detection': self.config.enable_peak_detection,
             'enable_trend_analysis': self.config.enable_trend_analysis,
             
-            # Análisis de voltajes
+            # Voltage analysis
             'enable_voltage_analysis': self.config.enable_voltage_analysis,
             'enable_voltage_stability': self.config.enable_voltage_stability,
             
-            # Visualizaciones
+            # Visualizations
             'enable_all_plots': self.config.enable_all_plots,
             'enable_temperature_trends': self.config.enable_temperature_trends,
             'enable_distributions': self.config.enable_distributions,
@@ -97,12 +97,12 @@ class AnalysisMethodSelector:
             'enable_dashboard': self.config.enable_dashboard,
             'enable_correlations': self.config.enable_correlations,
             
-            # Configuraciones avanzadas
+            # Advanced configurations
             'isolation_forest_contamination': self.config.isolation_forest_contamination,
             'zscore_threshold': self.config.zscore_threshold,
             'iqr_multiplier': self.config.iqr_multiplier,
             
-            # Configuraciones de visualización
+            # Visualization configurations
             'plot_resolution_dpi': self.config.plot_resolution_dpi,
             'max_sensors_per_plot': self.config.max_sensors_per_plot,
             'sample_rate_for_heatmap': self.config.sample_rate_for_heatmap
@@ -111,10 +111,10 @@ class AnalysisMethodSelector:
         with open(config_file, 'w', encoding='utf-8') as f:
             json.dump(config_dict, f, indent=2, ensure_ascii=False)
         
-        print(f"Configuración guardada en: {config_file}")
+        print(f"Configuration saved to: {config_file}")
     
     def get_enabled_anomaly_methods(self) -> List[str]:
-        """Retorna lista de métodos de anomalías habilitados"""
+        """Returns list of enabled anomaly detection methods"""
         methods = []
         if self.config.enable_isolation_forest:
             methods.append('isolation_forest')
@@ -125,7 +125,7 @@ class AnalysisMethodSelector:
         return methods
     
     def get_enabled_analysis_methods(self) -> Dict[str, bool]:
-        """Retorna diccionario de métodos de análisis habilitados"""
+        """Returns dictionary of enabled analysis methods"""
         return {
             'thermal_analysis': self.config.enable_thermal_analysis,
             'peak_detection': self.config.enable_peak_detection,
@@ -135,7 +135,7 @@ class AnalysisMethodSelector:
         }
     
     def get_enabled_visualization_methods(self) -> Dict[str, bool]:
-        """Retorna diccionario de visualizaciones habilitadas"""
+        """Returns dictionary of enabled visualization methods"""
         if self.config.enable_all_plots:
             return {
                 'temperature_trends': True,
@@ -158,7 +158,7 @@ class AnalysisMethodSelector:
         }
     
     def get_anomaly_parameters(self) -> Dict[str, Any]:
-        """Retorna parámetros para algoritmos de anomalías"""
+        """Returns parameters for anomaly detection algorithms"""
         return {
             'isolation_forest_contamination': self.config.isolation_forest_contamination,
             'zscore_threshold': self.config.zscore_threshold,
@@ -166,7 +166,7 @@ class AnalysisMethodSelector:
         }
     
     def get_visualization_parameters(self) -> Dict[str, Any]:
-        """Retorna parámetros para visualizaciones"""
+        """Returns parameters for visualizations"""
         return {
             'plot_resolution_dpi': self.config.plot_resolution_dpi,
             'max_sensors_per_plot': self.config.max_sensors_per_plot,
@@ -174,7 +174,7 @@ class AnalysisMethodSelector:
         }
     
     def enable_all_methods(self):
-        """Habilita todos los métodos de análisis"""
+        """Enable all analysis methods"""
         self.config.enable_isolation_forest = True
         self.config.enable_zscore = True
         self.config.enable_iqr = True
@@ -186,7 +186,7 @@ class AnalysisMethodSelector:
         self.config.enable_all_plots = True
     
     def enable_minimal_analysis(self):
-        """Habilita solo análisis esencial (rápido)"""
+        """Enable only essential analysis (fast)"""
         self.config.enable_isolation_forest = True
         self.config.enable_zscore = False
         self.config.enable_iqr = False
@@ -200,22 +200,22 @@ class AnalysisMethodSelector:
         self.config.enable_dashboard = True
     
     def enable_comprehensive_analysis(self):
-        """Habilita análisis completo y exhaustivo"""
+        """Enable complete and exhaustive analysis"""
         self.enable_all_methods()
-        # Configuraciones más sensibles para análisis exhaustivo
+        # More sensitive configurations for exhaustive analysis
         self.config.isolation_forest_contamination = 0.05
         self.config.zscore_threshold = 2.5
         self.config.iqr_multiplier = 1.2
     
     def create_preset_configs(self):
-        """Crea archivos de configuración predefinidos"""
+        """Create predefined configuration files"""
         presets = {
             'comprehensive': {
-                'description': 'Análisis completo con todos los métodos habilitados',
+                'description': 'Complete analysis with all methods enabled',
                 'config': AnalysisConfig()
             },
             'minimal': {
-                'description': 'Análisis rápido con métodos esenciales',
+                'description': 'Fast analysis with essential methods',
                 'config': AnalysisConfig(
                     enable_zscore=False,
                     enable_iqr=False,
@@ -233,7 +233,7 @@ class AnalysisMethodSelector:
                 )
             },
             'thermal_focus': {
-                'description': 'Enfoque en análisis térmico',
+                'description': 'Focus on thermal analysis',
                 'config': AnalysisConfig(
                     enable_voltage_analysis=False,
                     enable_voltage_stability=False,
@@ -243,7 +243,7 @@ class AnalysisMethodSelector:
                 )
             },
             'voltage_focus': {
-                'description': 'Enfoque en análisis de voltajes',
+                'description': 'Focus on voltage analysis',
                 'config': AnalysisConfig(
                     enable_thermal_analysis=True,
                     enable_peak_detection=False,
@@ -257,7 +257,7 @@ class AnalysisMethodSelector:
             }
         }
         
-        # Guardar presets
+        # Save presets
         for preset_name, preset_data in presets.items():
             filename = f"preset_{preset_name}.json"
             temp_config = self.config
@@ -265,15 +265,15 @@ class AnalysisMethodSelector:
             self.save_config(filename)
             self.config = temp_config
             
-            # Crear archivo de descripción
+            # Create description file
             desc_filename = f"preset_{preset_name}_description.txt"
             with open(desc_filename, 'w', encoding='utf-8') as f:
                 f.write(f"PRESET: {preset_name.upper()}\n")
                 f.write("=" * 40 + "\n\n")
-                f.write(f"Descripción: {preset_data['description']}\n\n")
-                f.write("Uso:\n")
+                f.write(f"Description: {preset_data['description']}\n\n")
+                f.write("Usage:\n")
                 f.write(f"python improved_analyzer.py test.CSV --config {filename}\n\n")
-                f.write("Métodos habilitados:\n")
+                f.write("Enabled methods:\n")
                 f.write("-" * 20 + "\n")
                 
                 config = preset_data['config']
@@ -284,84 +284,84 @@ class AnalysisMethodSelector:
                 if config.enable_iqr:
                     f.write("[SI] IQR\n")
                 if config.enable_thermal_analysis:
-                    f.write("[SI] Análisis Térmico\n")
+                    f.write("[YES] Thermal Analysis\n")
                 if config.enable_voltage_analysis:
-                    f.write("[SI] Análisis de Voltajes\n")
+                    f.write("[YES] Voltage Analysis\n")
                 if config.enable_all_plots or any([
                     config.enable_temperature_trends,
                     config.enable_distributions,
                     config.enable_heatmaps,
                     config.enable_dashboard
                 ]):
-                    f.write("[SI] Visualizaciones\n")
+                    f.write("[YES] Visualizations\n")
         
-        print(f"Creados {len(presets)} archivos de configuración predefinidos")
+        print(f"Created {len(presets)} predefined configuration files")
         return list(presets.keys())
     
     def print_current_config(self):
-        """Imprime la configuración actual"""
-        print("\nCONFIGURACIÓN ACTUAL DE ANÁLISIS")
+        """Print current configuration"""
+        print("\nANALYSIS CONFIGURATION")
         print("=" * 40)
         
-        print("\nMétodos de Anomalías:")
-        print(f"  Isolation Forest: {'[SI]' if self.config.enable_isolation_forest else '[NO]'}")
-        print(f"  Z-Score: {'[SI]' if self.config.enable_zscore else '[NO]'}")
-        print(f"  IQR: {'[SI]' if self.config.enable_iqr else '[NO]'}")
+        print("\nAnomaly Detection Methods:")
+        print(f"  Isolation Forest: {'[YES]' if self.config.enable_isolation_forest else '[NO]'}")
+        print(f"  Z-Score: {'[YES]' if self.config.enable_zscore else '[NO]'}")
+        print(f"  IQR: {'[YES]' if self.config.enable_iqr else '[NO]'}")
         
-        print("\nAnálisis Térmico y Voltajes:")
-        print(f"  Análisis Térmico: {'[SI]' if self.config.enable_thermal_analysis else '[NO]'}")
-        print(f"  Detección de Picos: {'[SI]' if self.config.enable_peak_detection else '[NO]'}")
-        print(f"  Análisis de Tendencias: {'[SI]' if self.config.enable_trend_analysis else '[NO]'}")
-        print(f"  Análisis de Voltajes: {'[SI]' if self.config.enable_voltage_analysis else '[NO]'}")
-        print(f"  Estabilidad de Voltajes: {'[SI]' if self.config.enable_voltage_stability else '[NO]'}")
+        print("\nThermal and Voltage Analysis:")
+        print(f"  Thermal Analysis: {'[YES]' if self.config.enable_thermal_analysis else '[NO]'}")
+        print(f"  Peak Detection: {'[YES]' if self.config.enable_peak_detection else '[NO]'}")
+        print(f"  Trend Analysis: {'[YES]' if self.config.enable_trend_analysis else '[NO]'}")
+        print(f"  Voltage Analysis: {'[YES]' if self.config.enable_voltage_analysis else '[NO]'}")
+        print(f"  Voltage Stability: {'[YES]' if self.config.enable_voltage_stability else '[NO]'}")
         
-        print("\nVisualizaciones:")
+        print("\nVisualizations:")
         if self.config.enable_all_plots:
-            print("  Todos los gráficos: [SI]")
+            print("  All plots: [YES]")
         else:
-            print(f"  Tendencias de Temperatura: {'[SI]' if self.config.enable_temperature_trends else '[NO]'}")
-            print(f"  Distribuciones: {'[SI]' if self.config.enable_distributions else '[NO]'}")
-            print(f"  Heatmaps: {'[SI]' if self.config.enable_heatmaps else '[NO]'}")
-            print(f"  Gráficos de Voltaje: {'[SI]' if self.config.enable_voltage_plots else '[NO]'}")
-            print(f"  Gráficos de Anomalías: {'[SI]' if self.config.enable_anomaly_plots else '[NO]'}")
-            print(f"  Dashboard: {'[SI]' if self.config.enable_dashboard else '[NO]'}")
-            print(f"  Correlaciones: {'[SI]' if self.config.enable_correlations else '[NO]'}")
+            print(f"  Temperature Trends: {'[YES]' if self.config.enable_temperature_trends else '[NO]'}")
+            print(f"  Distributions: {'[YES]' if self.config.enable_distributions else '[NO]'}")
+            print(f"  Heatmaps: {'[YES]' if self.config.enable_heatmaps else '[NO]'}")
+            print(f"  Voltage Plots: {'[YES]' if self.config.enable_voltage_plots else '[NO]'}")
+            print(f"  Anomaly Plots: {'[YES]' if self.config.enable_anomaly_plots else '[NO]'}")
+            print(f"  Dashboard: {'[YES]' if self.config.enable_dashboard else '[NO]'}")
+            print(f"  Correlations: {'[YES]' if self.config.enable_correlations else '[NO]'}")
         
-        print("\nParámetros:")
-        print(f"  Contaminación IF: {self.config.isolation_forest_contamination}")
-        print(f"  Umbral Z-Score: {self.config.zscore_threshold}")
-        print(f"  Multiplicador IQR: {self.config.iqr_multiplier}")
-        print(f"  Resolución gráficos: {self.config.plot_resolution_dpi} DPI")
+        print("\nParameters:")
+        print(f"  IF Contamination: {self.config.isolation_forest_contamination}")
+        print(f"  Z-Score Threshold: {self.config.zscore_threshold}")
+        print(f"  IQR Multiplier: {self.config.iqr_multiplier}")
+        print(f"  Plot Resolution: {self.config.plot_resolution_dpi} DPI")
 
-# Funciones de utilidad para crear configuraciones rápidas
+# Utility functions for creating quick configurations
 def create_default_config() -> AnalysisMethodSelector:
-    """Crea configuración por defecto (todos los métodos)"""
+    """Create default configuration (all methods)"""
     selector = AnalysisMethodSelector()
     selector.enable_all_methods()
     return selector
 
 def create_quick_config() -> AnalysisMethodSelector:
-    """Crea configuración para análisis rápido"""
+    """Create configuration for quick analysis"""
     selector = AnalysisMethodSelector()
     selector.enable_minimal_analysis()
     return selector
 
 def create_comprehensive_config() -> AnalysisMethodSelector:
-    """Crea configuración para análisis exhaustivo"""
+    """Create configuration for exhaustive analysis"""
     selector = AnalysisMethodSelector()
     selector.enable_comprehensive_analysis()
     return selector
 
 if __name__ == "__main__":
-    # Crear configuraciones predefinidas
+    # Create predefined configurations
     selector = AnalysisMethodSelector()
     
-    print("Creando configuraciones predefinidas...")
+    print("Creating predefined configurations...")
     presets = selector.create_preset_configs()
     
-    print(f"\nCreadas configuraciones: {', '.join(presets)}")
-    print("\nConfiguración por defecto (comprehensive):")
+    print(f"\nCreated configurations: {', '.join(presets)}")
+    print("\nDefault configuration (comprehensive):")
     selector.print_current_config()
     
-    # Guardar configuración por defecto
+    # Save default configuration
     selector.save_config("default_config.json")

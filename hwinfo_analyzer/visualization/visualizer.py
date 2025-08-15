@@ -1,6 +1,6 @@
 """
-Módulo de visualización para análisis de HWiNFO
-Genera gráficos completos para diagnóstico térmico y de voltajes
+Visualization Module for HWiNFO Analysis
+Generates comprehensive plots for thermal and voltage diagnostics.
 """
 
 import matplotlib.pyplot as plt
@@ -19,7 +19,7 @@ class HWiNFOVisualizer:
         self.output_dir = Path(output_dir)
         self.output_dir.mkdir(parents=True, exist_ok=True)
         
-        # Configurar estilo visual profesional
+        # Configure professional visual style
         try:
             plt.style.use('seaborn-v0_8-darkgrid')
         except:
@@ -40,36 +40,36 @@ class HWiNFOVisualizer:
         }
 
     def create_complete_analysis_plots(self, data, processor, thermal_analyzer, anomalies):
-        """Genera conjunto completo de gráficos para análisis"""
+        """Generate complete set of analysis plots"""
         plots_created = []
         
-        # 1. Tendencias temporales principales
+        # 1. Main temperature trends
         plots_created.append(self._plot_temperature_trends(data, processor))
         
-        # 2. Distribuciones de temperaturas
+        # 2. Temperature distributions
         plots_created.append(self._plot_temperature_distributions(data, processor))
         
-        # 3. Heatmap de componentes
+        # 3. Component heatmap
         plots_created.append(self._plot_component_heatmap(data, processor))
         
-        # 4. Análisis de voltajes
+        # 4. Voltage analysis
         plots_created.append(self._plot_voltage_analysis(data, processor))
         
-        # 5. Anomalías detectadas
+        # 5. Detected anomalies
         plots_created.append(self._plot_anomalies(data, anomalies, processor))
         
-        # 6. Dashboard resumen
+        # 6. Summary dashboard
         plots_created.append(self._create_dashboard(data, processor, thermal_analyzer))
         
-        # 7. Correlaciones entre componentes
+        # 7. Component correlations
         plots_created.append(self._plot_correlations(data, processor))
         
         return plots_created
 
     def _plot_temperature_trends(self, data, processor):
-        """Gráfico de tendencias temporales de temperaturas"""
+        """Temperature trend plots over time"""
         fig, axes = plt.subplots(2, 2, figsize=(16, 12))
-        fig.suptitle('Análisis de Tendencias Térmicas HWiNFO', fontsize=16, fontweight='bold')
+        fig.suptitle('HWiNFO Thermal Trends Analysis', fontsize=16, fontweight='bold')
         
         # CPU Temperatures
         if processor.cpu_temp_columns:

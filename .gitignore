@@ -46,7 +46,7 @@ venv.bak/
 .ipynb_checkpoints
 
 # Analysis outputs
-analisis_*/
+analysis_*/
 results/
 output/
 plots/
@@ -82,4 +82,7 @@ Thumbs.db
 *_report.txt
 *_analysis.txt
 detailed_analysis.txt
-.claude
+
+# Configuration files (keep examples)
+default_config.json
+preset_*.json
