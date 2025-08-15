@@ -1,0 +1,14 @@
+PRESET: MINIMAL
+========================================
+
+Descripción: Análisis rápido con métodos esenciales
+
+Uso:
+python improved_analyzer.py test.CSV --config preset_minimal.json
+
+Métodos habilitados:
+--------------------
+[SI] Isolation Forest
+[SI] Análisis Térmico
+[SI] Análisis de Voltajes
+[SI] Visualizaciones

@@ -7,57 +7,104 @@ Modular and scientifically accurate analysis of HWiNFO logs.
 import argparse
 import os
 from datetime import datetime
+try:
+    from pathlib import Path
+except ImportError:
+    from pathlib2 import Path
 
 from data_processor import HWInfoDataProcessor
 from anomaly_detector import AnomalyDetector
 from thermal_analyzer import ThermalAnalyzer
 from thermal_thresholds import ThermalThresholds
+from visualizer import HWiNFOVisualizer
+from analysis_methods import AnalysisMethodSelector, create_default_config
 
 class ImprovedHWInfoAnalyzer:
     """Main analyzer class with improved accuracy and modularity."""
     
-    def __init__(self, csv_file):
+    def __init__(self, csv_file, config_file=None, enable_plots=True, output_dir=None):
         self.csv_file = csv_file
         self.data_processor = HWInfoDataProcessor()
         self.anomaly_detector = AnomalyDetector()
         self.thermal_analyzer = ThermalAnalyzer()
         self.analysis_results = {}
+        
+        # Configure analysis methods
+        self.method_selector = AnalysisMethodSelector(config_file) if config_file else create_default_config()
+        
+        # Setup visualization
+        self.enable_plots = enable_plots and self.method_selector.get_enabled_visualization_methods()
+        if self.enable_plots:
+            plot_dir = output_dir or "plots"
+            self.visualizer = HWiNFOVisualizer(plot_dir)
+        else:
+            self.visualizer = None
     
     def run_analysis(self):
-        """Run complete analysis pipeline."""
+        """Run complete analysis pipeline with configurable methods."""
         print("Starting Improved HWiNFO Analysis...")
         print("=" * 60)
         
+        # Print configuration
+        print("\nAnalysis Configuration:")
+        self.method_selector.print_current_config()
+        print("\n" + "=" * 60)
+        
         # Load and process data
+        print("Loading and processing data...")
         self.data_processor.load_csv(self.csv_file)
         
         # Get data summary
         summary = self.data_processor.get_summary_statistics()
         self.analysis_results['summary'] = summary
         
+        # Configure anomaly detector parameters
+        anomaly_params = self.method_selector.get_anomaly_parameters()
+        self.anomaly_detector.set_parameters(
+            isolation_contamination=anomaly_params['isolation_forest_contamination'],
+            zscore_threshold=anomaly_params['zscore_threshold'],
+            iqr_multiplier=anomaly_params['iqr_multiplier']
+        )
+        
+        # Get enabled analysis methods
+        enabled_methods = self.method_selector.get_enabled_analysis_methods()
+        
         # Thermal analysis
-        print("\nAnalyzing CPU thermal behavior...")
-        cpu_analysis = self.thermal_analyzer.analyze_cpu_temperatures(
-            self.data_processor, self.anomaly_detector
-        )
-        self.analysis_results['cpu_thermal'] = cpu_analysis
-        
-        print("Analyzing GPU thermal behavior...")
-        gpu_analysis = self.thermal_analyzer.analyze_gpu_temperatures(
-            self.data_processor, self.anomaly_detector
-        )
-        self.analysis_results['gpu_thermal'] = gpu_analysis
-        
-        print("Analyzing system thermal zones...")
-        system_analysis = self.thermal_analyzer.analyze_system_thermals(
-            self.data_processor, self.anomaly_detector
-        )
-        self.analysis_results['system_thermal'] = system_analysis
+        if enabled_methods['thermal_analysis']:
+            print("\nAnalyzing CPU thermal behavior...")
+            cpu_analysis = self.thermal_analyzer.analyze_cpu_temperatures(
+                self.data_processor, self.anomaly_detector
+            )
+            self.analysis_results['cpu_thermal'] = cpu_analysis
+            
+            print("Analyzing GPU thermal behavior...")
+            gpu_analysis = self.thermal_analyzer.analyze_gpu_temperatures(
+                self.data_processor, self.anomaly_detector
+            )
+            self.analysis_results['gpu_thermal'] = gpu_analysis
+            
+            print("Analyzing system thermal zones...")
+            system_analysis = self.thermal_analyzer.analyze_system_thermals(
+                self.data_processor, self.anomaly_detector
+            )
+            self.analysis_results['system_thermal'] = system_analysis
         
         # Voltage analysis
-        print("Analyzing voltage stability...")
-        voltage_analysis = self._analyze_voltages()
-        self.analysis_results['voltage'] = voltage_analysis
+        if enabled_methods['voltage_analysis']:
+            print("Analyzing voltage stability...")
+            voltage_analysis = self._analyze_voltages()
+            self.analysis_results['voltage'] = voltage_analysis
+        
+        # Generate comprehensive anomaly analysis
+        print("Detecting anomalies with all enabled methods...")
+        anomalies = self._run_comprehensive_anomaly_detection()
+        self.analysis_results['anomalies'] = anomalies
+        
+        # Generate visualizations
+        if self.enable_plots and self.visualizer:
+            print("\nGenerating visualizations...")
+            plots_created = self._generate_visualizations()
+            self.analysis_results['plots'] = plots_created
         
         # Generate final diagnosis
         diagnosis = self._generate_diagnosis()
@@ -237,6 +284,95 @@ class ImprovedHWInfoAnalyzer:
         
         return diagnosis
     
+    def _run_comprehensive_anomaly_detection(self):
+        """Run all enabled anomaly detection methods."""
+        enabled_methods = self.method_selector.get_enabled_anomaly_methods()
+        all_anomalies = {}
+        
+        # Combine all temperature data for comprehensive analysis
+        temp_columns = self.data_processor.temp_columns
+        if not temp_columns:
+            return all_anomalies
+        
+        # Run anomaly detection for each enabled method
+        for method in enabled_methods:
+            method_anomalies = []
+            
+            for col in temp_columns:
+                data = self.data_processor.get_column_data(col)
+                if len(data) > 10:  # Minimum data points
+                    if method == 'isolation_forest':
+                        anomalies = self.anomaly_detector.detect_anomalies(data, method='isolation_forest')
+                    elif method == 'zscore':
+                        anomalies = self.anomaly_detector.detect_anomalies(data, method='zscore')
+                    elif method == 'iqr':
+                        anomalies = self.anomaly_detector.detect_anomalies(data, method='iqr')
+                    
+                    method_anomalies.extend(anomalies.get('anomaly_indices', []))
+            
+            # Remove duplicates and sort
+            all_anomalies[method] = sorted(list(set(method_anomalies)))
+        
+        return all_anomalies
+    
+    def _generate_visualizations(self):
+        """Generate all enabled visualizations."""
+        enabled_viz = self.method_selector.get_enabled_visualization_methods()
+        plots_created = []
+        
+        try:
+            # Get raw data for visualizations
+            data = self.data_processor.data
+            anomalies = self.analysis_results.get('anomalies', {})
+            
+            if enabled_viz.get('temperature_trends', False):
+                plot_file = self.visualizer._plot_temperature_trends(data, self.data_processor)
+                plots_created.append(plot_file)
+                print(f"  ✓ Temperature trends: {plot_file.name}")
+            
+            if enabled_viz.get('distributions', False):
+                plot_file = self.visualizer._plot_temperature_distributions(data, self.data_processor)
+                plots_created.append(plot_file)
+                print(f"  ✓ Temperature distributions: {plot_file.name}")
+            
+            if enabled_viz.get('heatmaps', False):
+                plot_file = self.visualizer._plot_component_heatmap(data, self.data_processor)
+                plots_created.append(plot_file)
+                print(f"  ✓ Thermal heatmap: {plot_file.name}")
+            
+            if enabled_viz.get('voltage_plots', False):
+                plot_file = self.visualizer._plot_voltage_analysis(data, self.data_processor)
+                plots_created.append(plot_file)
+                print(f"  ✓ Voltage analysis: {plot_file.name}")
+            
+            if enabled_viz.get('anomaly_plots', False):
+                plot_file = self.visualizer._plot_anomalies(data, anomalies, self.data_processor)
+                plots_created.append(plot_file)
+                print(f"  ✓ Anomalies analysis: {plot_file.name}")
+            
+            if enabled_viz.get('dashboard', False):
+                plot_file = self.visualizer._create_dashboard(data, self.data_processor, self.thermal_analyzer)
+                plots_created.append(plot_file)
+                print(f"  ✓ System dashboard: {plot_file.name}")
+            
+            if enabled_viz.get('correlations', False):
+                plot_file = self.visualizer._plot_correlations(data, self.data_processor)
+                plots_created.append(plot_file)
+                print(f"  ✓ Correlations analysis: {plot_file.name}")
+            
+            # Generate summary report
+            if plots_created:
+                summary_file = self.visualizer.create_summary_report(plots_created)
+                print(f"  ✓ Visualization summary: {summary_file.name}")
+            
+            print(f"\nGenerated {len(plots_created)} visualization files in: {self.visualizer.output_dir}")
+            
+        except Exception as e:
+            print(f"Warning: Error generating visualizations: {e}")
+            print("Analysis will continue without plots.")
+        
+        return plots_created
+    
     def _score_to_status(self, score):
         """Convert numeric score to status string."""
         if score >= 90:
@@ -308,9 +444,13 @@ class ImprovedHWInfoAnalyzer:
         print(f"\nAnalysis completed: {diagnosis['timestamp']}")
 
 def main():
-    parser = argparse.ArgumentParser(description='Improved HWiNFO CSV Log Analyzer')
+    parser = argparse.ArgumentParser(description='Improved HWiNFO CSV Log Analyzer with Visualizations')
     parser.add_argument('csv_file', help='Path to HWiNFO CSV log file')
-    parser.add_argument('--output', '-o', help='Output directory for detailed reports')
+    parser.add_argument('--output', '-o', help='Output directory for detailed reports and plots')
+    parser.add_argument('--config', '-c', help='Configuration file for analysis methods')
+    parser.add_argument('--no-plots', action='store_true', help='Disable visualization generation')
+    parser.add_argument('--preset', choices=['comprehensive', 'minimal', 'thermal_focus', 'voltage_focus'], 
+                       help='Use predefined analysis preset')
     
     args = parser.parse_args()
     
@@ -318,19 +458,42 @@ def main():
         print(f"Error: File {args.csv_file} not found!")
         return
     
+    # Setup configuration
+    config_file = args.config
+    if args.preset:
+        config_file = f"preset_{args.preset}.json"
+        if not os.path.exists(config_file):
+            print(f"Creating preset configuration: {config_file}")
+            from analysis_methods import AnalysisMethodSelector
+            selector = AnalysisMethodSelector()
+            selector.create_preset_configs()
+    
+    # Setup output directory
+    output_dir = args.output or "analysis_output"
+    
     # Run analysis
-    analyzer = ImprovedHWInfoAnalyzer(args.csv_file)
+    analyzer = ImprovedHWInfoAnalyzer(
+        args.csv_file, 
+        config_file=config_file,
+        enable_plots=not args.no_plots,
+        output_dir=output_dir
+    )
     results = analyzer.run_analysis()
     
     # Print summary
     analyzer.print_summary()
     
-    # Save detailed report if output directory specified
-    if args.output:
-        os.makedirs(args.output, exist_ok=True)
-        report_file = os.path.join(args.output, 'detailed_analysis.txt')
-        save_detailed_report(results, report_file)
-        print(f"\nDetailed report saved to: {report_file}")
+    # Save detailed report
+    os.makedirs(output_dir, exist_ok=True)
+    report_file = os.path.join(output_dir, 'detailed_analysis.txt')
+    save_detailed_report(results, report_file)
+    print(f"\nDetailed report saved to: {report_file}")
+    
+    # Print summary of generated files
+    print(f"\nAnalysis complete! Files generated in: {output_dir}")
+    if results.get('plots'):
+        print(f"Visualization files: {len(results['plots'])}")
+        print(f"View plots directory: {output_dir}/plots/")
 
 def save_detailed_report(results, output_file):
     """Save detailed analysis report."""

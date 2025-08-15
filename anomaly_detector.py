@@ -14,7 +14,18 @@ class AnomalyDetector:
     
     def __init__(self, contamination_rate=0.05):
         self.contamination_rate = contamination_rate
-        self.methods = ['isolation_forest', 'statistical', 'iqr']
+        self.zscore_threshold = 3.0
+        self.iqr_multiplier = 1.5
+        self.methods = ['isolation_forest', 'zscore', 'iqr']
+    
+    def set_parameters(self, isolation_contamination=None, zscore_threshold=None, iqr_multiplier=None):
+        """Set parameters for anomaly detection algorithms."""
+        if isolation_contamination is not None:
+            self.contamination_rate = isolation_contamination
+        if zscore_threshold is not None:
+            self.zscore_threshold = zscore_threshold
+        if iqr_multiplier is not None:
+            self.iqr_multiplier = iqr_multiplier
     
     def detect_anomalies(self, data, method='isolation_forest'):
         """Detect anomalies in a data series."""
@@ -31,8 +42,8 @@ class AnomalyDetector:
         # Detect anomalies based on method
         if method == 'isolation_forest':
             anomaly_indices = self._isolation_forest_detection(clean_data)
-        elif method == 'statistical':
-            anomaly_indices = self._statistical_detection(clean_data)
+        elif method == 'zscore' or method == 'statistical':
+            anomaly_indices = self._zscore_detection(clean_data)
         elif method == 'iqr':
             anomaly_indices = self._iqr_detection(clean_data)
         else:
@@ -70,13 +81,13 @@ class AnomalyDetector:
             return np.where(anomaly_labels == -1)[0]
         except Exception as e:
             print(f"Warning: Isolation Forest failed: {e}, falling back to statistical method")
-            return self._statistical_detection(data)
+            return self._zscore_detection(data)
     
-    def _statistical_detection(self, data):
+    def _zscore_detection(self, data):
         """Use Z-score for anomaly detection."""
         z_scores = np.abs(stats.zscore(data))
-        # Use 3 sigma rule, but adapt based on data distribution
-        threshold = 3.0 if data.std() > 0 else float('inf')
+        # Use configurable Z-score threshold
+        threshold = self.zscore_threshold if data.std() > 0 else float('inf')
         return np.where(z_scores > threshold)[0]
     
     def _iqr_detection(self, data):
@@ -85,9 +96,9 @@ class AnomalyDetector:
         Q3 = data.quantile(0.75)
         IQR = Q3 - Q1
         
-        # Use 1.5 * IQR rule
-        lower_bound = Q1 - 1.5 * IQR
-        upper_bound = Q3 + 1.5 * IQR
+        # Use configurable IQR multiplier
+        lower_bound = Q1 - self.iqr_multiplier * IQR
+        upper_bound = Q3 + self.iqr_multiplier * IQR
         
         return np.where((data < lower_bound) | (data > upper_bound))[0]
     
