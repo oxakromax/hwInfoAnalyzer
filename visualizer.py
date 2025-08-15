@@ -17,10 +17,16 @@ warnings.filterwarnings('ignore')
 class HWiNFOVisualizer:
     def __init__(self, output_dir="plots"):
         self.output_dir = Path(output_dir)
-        self.output_dir.mkdir(exist_ok=True)
+        self.output_dir.mkdir(parents=True, exist_ok=True)
         
         # Configurar estilo visual profesional
-        plt.style.use('seaborn-v0_8-darkgrid')
+        try:
+            plt.style.use('seaborn-v0_8-darkgrid')
+        except:
+            try:
+                plt.style.use('seaborn-darkgrid')
+            except:
+                plt.style.use('default')
         sns.set_palette("husl")
         
         self.colors = {
@@ -297,8 +303,16 @@ class HWiNFOVisualizer:
             voltage_data = data[voltage_cols].dropna()
             if not voltage_data.empty:
                 for col in voltage_cols[:4]:
-                    ax.hist(data[col].dropna(), bins=30, alpha=0.6, 
-                           label=col.replace(' [V]', ''))
+                    if col in data.columns:
+                        try:
+                            # Convertir a numérico y limpiar datos
+                            volt_series = pd.to_numeric(data[col], errors='coerce').dropna()
+                            if len(volt_series) > 0:
+                                ax.hist(volt_series, bins=30, alpha=0.6, 
+                                       label=col.replace(' [V]', ''))
+                        except Exception as e:
+                            print(f"Warning: Could not process voltage column {col}: {e}")
+                            continue
                 ax.set_title('Distribución de Voltajes')
                 ax.set_xlabel('Voltaje (V)')
                 ax.set_ylabel('Frecuencia')
@@ -310,11 +324,14 @@ class HWiNFOVisualizer:
             labels = []
             for col in voltage_cols:
                 if col in data.columns:
-                    series = data[col].dropna()
-                    if len(series) > 0 and series.mean() != 0:
-                        cv = series.std() / series.mean() * 100
-                        cv_data.append(cv)
-                        labels.append(col.replace(' [V]', ''))
+                    try:
+                        series = pd.to_numeric(data[col], errors='coerce').dropna()
+                        if len(series) > 0 and series.mean() != 0:
+                            cv = series.std() / series.mean() * 100
+                            cv_data.append(cv)
+                            labels.append(col.replace(' [V]', '')[:12])  # Limit label length
+                    except Exception:
+                        continue
             
             if cv_data:
                 bars = ax.bar(labels, cv_data, color=self.colors['voltage'])
@@ -331,7 +348,18 @@ class HWiNFOVisualizer:
             ax = axes[1, 1]
             if processor.temp_columns and voltage_cols:
                 temp_mean = data[processor.temp_columns].mean(axis=1)
-                voltage_mean = data[voltage_cols].mean(axis=1)
+                # Clean voltage data for mean calculation
+                voltage_data_clean = pd.DataFrame()
+                for col in voltage_cols:
+                    if col in data.columns:
+                        cleaned_col = pd.to_numeric(data[col], errors='coerce')
+                        if not cleaned_col.isna().all():
+                            voltage_data_clean[col] = cleaned_col
+                
+                if not voltage_data_clean.empty:
+                    voltage_mean = voltage_data_clean.mean(axis=1)
+                else:
+                    voltage_mean = pd.Series(dtype=float)
                 
                 valid_indices = temp_mean.notna() & voltage_mean.notna()
                 if valid_indices.any():

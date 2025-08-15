@@ -14,11 +14,13 @@ class HWInfoDataProcessor:
     
     def __init__(self):
         self.df = None
+        self.data = None  # Alias for visualization access
         self.temp_columns = []
         self.voltage_columns = []
         self.cpu_temp_columns = []
         self.gpu_temp_columns = []
         self.motherboard_temp_columns = []
+        self.system_temp_columns = []
         
     def load_csv(self, csv_file):
         """Load CSV with robust error handling."""
@@ -67,6 +69,9 @@ class HWInfoDataProcessor:
         print(f"Found {len(self.motherboard_temp_columns)} other temperature columns")
         print(f"Found {len(self.voltage_columns)} voltage columns")
         print(f"Final data points: {len(self.df)}")
+        
+        # Set data alias for visualization
+        self.data = self.df
         
         return self.df
     
@@ -120,6 +125,8 @@ class HWInfoDataProcessor:
         
         self.motherboard_temp_columns = [col for col in self.temp_columns 
                                        if col not in self.cpu_temp_columns + self.gpu_temp_columns]
+        # Alias for system temperatures (used by visualizer)
+        self.system_temp_columns = self.motherboard_temp_columns
         
         # Voltage columns (exclude VID, RPM, MHz, etc.)
         exclude_patterns = ['VID', 'RPM', 'MHZ', 'RATIO', 'CLOCK', 'USAGE', 'LOAD']

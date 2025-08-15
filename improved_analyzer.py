@@ -35,7 +35,10 @@ class ImprovedHWInfoAnalyzer:
         # Setup visualization
         self.enable_plots = enable_plots and self.method_selector.get_enabled_visualization_methods()
         if self.enable_plots:
-            plot_dir = output_dir or "plots"
+            if output_dir:
+                plot_dir = os.path.join(output_dir, "plots")
+            else:
+                plot_dir = "plots"
             self.visualizer = HWiNFOVisualizer(plot_dir)
         else:
             self.visualizer = None
@@ -328,42 +331,42 @@ class ImprovedHWInfoAnalyzer:
             if enabled_viz.get('temperature_trends', False):
                 plot_file = self.visualizer._plot_temperature_trends(data, self.data_processor)
                 plots_created.append(plot_file)
-                print(f"  ✓ Temperature trends: {plot_file.name}")
+                print(f"  [OK] Temperature trends: {plot_file.name}")
             
             if enabled_viz.get('distributions', False):
                 plot_file = self.visualizer._plot_temperature_distributions(data, self.data_processor)
                 plots_created.append(plot_file)
-                print(f"  ✓ Temperature distributions: {plot_file.name}")
+                print(f"  [OK] Temperature distributions: {plot_file.name}")
             
             if enabled_viz.get('heatmaps', False):
                 plot_file = self.visualizer._plot_component_heatmap(data, self.data_processor)
                 plots_created.append(plot_file)
-                print(f"  ✓ Thermal heatmap: {plot_file.name}")
+                print(f"  [OK] Thermal heatmap: {plot_file.name}")
             
             if enabled_viz.get('voltage_plots', False):
                 plot_file = self.visualizer._plot_voltage_analysis(data, self.data_processor)
                 plots_created.append(plot_file)
-                print(f"  ✓ Voltage analysis: {plot_file.name}")
+                print(f"  [OK] Voltage analysis: {plot_file.name}")
             
             if enabled_viz.get('anomaly_plots', False):
                 plot_file = self.visualizer._plot_anomalies(data, anomalies, self.data_processor)
                 plots_created.append(plot_file)
-                print(f"  ✓ Anomalies analysis: {plot_file.name}")
+                print(f"  [OK] Anomalies analysis: {plot_file.name}")
             
             if enabled_viz.get('dashboard', False):
                 plot_file = self.visualizer._create_dashboard(data, self.data_processor, self.thermal_analyzer)
                 plots_created.append(plot_file)
-                print(f"  ✓ System dashboard: {plot_file.name}")
+                print(f"  [OK] System dashboard: {plot_file.name}")
             
             if enabled_viz.get('correlations', False):
                 plot_file = self.visualizer._plot_correlations(data, self.data_processor)
                 plots_created.append(plot_file)
-                print(f"  ✓ Correlations analysis: {plot_file.name}")
+                print(f"  [OK] Correlations analysis: {plot_file.name}")
             
             # Generate summary report
             if plots_created:
                 summary_file = self.visualizer.create_summary_report(plots_created)
-                print(f"  ✓ Visualization summary: {summary_file.name}")
+                print(f"  [OK] Visualization summary: {summary_file.name}")
             
             print(f"\nGenerated {len(plots_created)} visualization files in: {self.visualizer.output_dir}")
             
