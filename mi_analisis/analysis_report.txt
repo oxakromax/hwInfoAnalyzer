@@ -1,0 +1,358 @@
+================================================================================
+HWiNFO LOG ANALYSIS REPORT
+================================================================================
+
+Analysis Date: 2025-08-14 22:45:07
+File Analyzed: test.CSV
+
+OVERALL SYSTEM HEALTH
+-------------------------
+Health Score: 0/100 (Critical)
+Issues Detected:
+  - Critical overheating detected
+  - Thermal throttling risk
+  - Temperature spikes in 32 components
+  - Voltage spikes in 9 rails
+
+TEMPERATURE ANALYSIS
+--------------------
+Overheating Detected: Yes
+Thermal Throttling Risk: Yes
+Critical Temperatures:
+  - GPU Thermal Limit [degC]: 84.0degC
+Temperature Spikes:
+  - CPU (Tctl/Tdie) [�C]: 7.1% anomalies
+  - CPU Die (average) [�C]: 7.1% anomalies
+  - CPU CCD1 (Tdie) [�C]: 7.1% anomalies
+  - CPU CCD2 (Tdie) [�C]: 7.1% anomalies
+  - Core Temperatures (avg) [�C]: 7.1% anomalies
+  - Core0 (CCD1) [�C]: 7.1% anomalies
+  - Core1 (CCD1) [�C]: 7.1% anomalies
+  - Core2 (CCD1) [�C]: 7.1% anomalies
+  - Core3 (CCD1) [�C]: 7.1% anomalies
+  - Core4 (CCD1) [�C]: 7.1% anomalies
+  - Core5 (CCD1) [�C]: 7.1% anomalies
+  - Core6 (CCD1) [�C]: 7.1% anomalies
+  - Core7 (CCD1) [�C]: 7.1% anomalies
+  - Core8 (CCD2) [�C]: 7.1% anomalies
+  - Core9 (CCD2) [�C]: 7.1% anomalies
+  - Core10 (CCD2) [�C]: 7.1% anomalies
+  - Core11 (CCD2) [�C]: 7.1% anomalies
+  - Core12 (CCD2) [�C]: 7.1% anomalies
+  - Core13 (CCD2) [�C]: 7.1% anomalies
+  - Core14 (CCD2) [�C]: 7.1% anomalies
+  - Core15 (CCD2) [�C]: 7.1% anomalies
+  - L3 Temperatures (avg) [�C]: 7.1% anomalies
+  - L3 Cache (CCD1) [�C]: 7.1% anomalies
+  - L3 Cache (CCD2) [�C]: 7.1% anomalies
+  - CPU IOD Hotspot [�C]: 7.1% anomalies
+  - CPU IOD Average [�C]: 7.1% anomalies
+  - CPU VDDCR_VDD VRM (SVI3 TFN) [�C]: 7.1% anomalies
+  - AUXTIN2 [�C]: 7.1% anomalies
+  - PCH TSI0 [�C]: 7.1% anomalies
+  - GPU Temperature [�C]: 7.1% anomalies
+  - GPU Temperature [�C].1: 7.1% anomalies
+  - GPU Hot Spot Temperature [�C]: 7.1% anomalies
+
+VOLTAGE ANALYSIS
+----------------
+Voltage Spikes:
+  - CPU VDDCR_VDD Voltage (SVI3 TFN) [V]: 7.1% anomalies
+  - +12V [V]: 7.1% anomalies
+  - VDD (SWA) Voltage [V].1: 7.1% anomalies
+  - VPP (SWC) Voltage [V].1: 7.1% anomalies
+  - 1.8V VOUT Voltage [V].1: 7.1% anomalies
+  - GPU Rail Voltages (avg) [V]: 7.1% anomalies
+  - GPU FBVDD Input Voltage [V]: 7.1% anomalies
+  - GPU PCIe +12V Input Voltage [V]: 7.1% anomalies
+  - GPU 12VHPWR Voltage [V]: 7.1% anomalies
+
+DETAILED STATISTICS
+-------------------
+
+CPU (Tctl/Tdie) [�C]:
+  Mean: 71.357
+  Std Dev: 1.526
+  Min: 68.600
+  Max: 73.800
+  Anomalies: 1 (7.1%)
+
+CPU Die (average) [�C]:
+  Mean: 68.121
+  Std Dev: 2.256
+  Min: 64.500
+  Max: 71.500
+  Anomalies: 1 (7.1%)
+
+CPU CCD1 (Tdie) [�C]:
+  Mean: 54.900
+  Std Dev: 4.564
+  Min: 47.500
+  Max: 60.900
+  Anomalies: 1 (7.1%)
+
+CPU CCD2 (Tdie) [�C]:
+  Mean: 67.243
+  Std Dev: 3.441
+  Min: 61.200
+  Max: 73.900
+  Anomalies: 1 (7.1%)
+
+Core Temperatures (avg) [�C]:
+  Mean: 54.143
+  Std Dev: 2.250
+  Min: 50.500
+  Max: 58.900
+  Anomalies: 1 (7.1%)
+
+Core0 (CCD1) [�C]:
+  Mean: 49.000
+  Std Dev: 1.993
+  Min: 46.400
+  Max: 53.800
+  Anomalies: 1 (7.1%)
+
+Core1 (CCD1) [�C]:
+  Mean: 48.386
+  Std Dev: 2.327
+  Min: 45.200
+  Max: 53.500
+  Anomalies: 1 (7.1%)
+
+Core2 (CCD1) [�C]:
+  Mean: 50.164
+  Std Dev: 2.387
+  Min: 46.900
+  Max: 55.800
+  Anomalies: 1 (7.1%)
+
+Core3 (CCD1) [�C]:
+  Mean: 48.650
+  Std Dev: 2.524
+  Min: 45.100
+  Max: 54.500
+  Anomalies: 1 (7.1%)
+
+Core4 (CCD1) [�C]:
+  Mean: 47.243
+  Std Dev: 2.353
+  Min: 44.000
+  Max: 52.800
+  Anomalies: 1 (7.1%)
+
+Core5 (CCD1) [�C]:
+  Mean: 51.436
+  Std Dev: 2.620
+  Min: 47.300
+  Max: 57.100
+  Anomalies: 1 (7.1%)
+
+Core6 (CCD1) [�C]:
+  Mean: 44.900
+  Std Dev: 2.145
+  Min: 42.100
+  Max: 49.500
+  Anomalies: 1 (7.1%)
+
+Core7 (CCD1) [�C]:
+  Mean: 50.686
+  Std Dev: 3.325
+  Min: 46.600
+  Max: 57.800
+  Anomalies: 1 (7.1%)
+
+Core8 (CCD2) [�C]:
+  Mean: 63.807
+  Std Dev: 2.174
+  Min: 60.400
+  Max: 66.800
+  Anomalies: 1 (7.1%)
+
+Core9 (CCD2) [�C]:
+  Mean: 59.214
+  Std Dev: 2.269
+  Min: 55.700
+  Max: 63.000
+  Anomalies: 1 (7.1%)
+
+Core10 (CCD2) [�C]:
+  Mean: 61.729
+  Std Dev: 2.595
+  Min: 56.900
+  Max: 67.000
+  Anomalies: 1 (7.1%)
+
+Core11 (CCD2) [�C]:
+  Mean: 57.629
+  Std Dev: 2.585
+  Min: 52.800
+  Max: 62.600
+  Anomalies: 1 (7.1%)
+
+Core12 (CCD2) [�C]:
+  Mean: 65.021
+  Std Dev: 2.437
+  Min: 60.800
+  Max: 68.700
+  Anomalies: 1 (7.1%)
+
+Core13 (CCD2) [�C]:
+  Mean: 59.000
+  Std Dev: 2.627
+  Min: 54.200
+  Max: 63.800
+  Anomalies: 1 (7.1%)
+
+Core14 (CCD2) [�C]:
+  Mean: 56.514
+  Std Dev: 2.247
+  Min: 52.600
+  Max: 61.200
+  Anomalies: 1 (7.1%)
+
+Core15 (CCD2) [�C]:
+  Mean: 52.979
+  Std Dev: 2.168
+  Min: 49.400
+  Max: 57.400
+  Anomalies: 1 (7.1%)
+
+L3 Temperatures (avg) [�C]:
+  Mean: 48.000
+  Std Dev: 1.220
+  Min: 46.100
+  Max: 50.700
+  Anomalies: 1 (7.1%)
+
+L3 Cache (CCD1) [�C]:
+  Mean: 46.336
+  Std Dev: 1.265
+  Min: 44.700
+  Max: 49.200
+  Anomalies: 1 (7.1%)
+
+L3 Cache (CCD2) [�C]:
+  Mean: 49.614
+  Std Dev: 1.209
+  Min: 47.500
+  Max: 52.100
+  Anomalies: 1 (7.1%)
+
+CPU IOD Hotspot [�C]:
+  Mean: 50.479
+  Std Dev: 0.535
+  Min: 49.800
+  Max: 51.800
+  Anomalies: 1 (7.1%)
+
+CPU IOD Average [�C]:
+  Mean: 43.479
+  Std Dev: 0.309
+  Min: 43.100
+  Max: 44.200
+  Anomalies: 1 (7.1%)
+
+CPU VDDCR_VDD VRM (SVI3 TFN) [�C]:
+  Mean: 39.493
+  Std Dev: 0.332
+  Min: 39.100
+  Max: 40.000
+  Anomalies: 1 (7.1%)
+
+AUXTIN2 [�C]:
+  Mean: 18.929
+  Std Dev: 0.267
+  Min: 18.000
+  Max: 19.000
+  Anomalies: 1 (7.1%)
+
+PCH TSI0 [�C]:
+  Mean: 71.000
+  Std Dev: 1.519
+  Min: 68.000
+  Max: 73.000
+  Anomalies: 1 (7.1%)
+
+GPU Temperature [�C]:
+  Mean: 44.514
+  Std Dev: 0.351
+  Min: 43.900
+  Max: 45.100
+  Anomalies: 1 (7.1%)
+
+GPU Temperature [�C].1:
+  Mean: 35.714
+  Std Dev: 0.482
+  Min: 35.400
+  Max: 36.600
+  Anomalies: 1 (7.1%)
+
+GPU Hot Spot Temperature [�C]:
+  Mean: 46.000
+  Std Dev: 0.263
+  Min: 45.800
+  Max: 46.600
+  Anomalies: 1 (7.1%)
+
+CPU VDDCR_VDD Voltage (SVI3 TFN) [V]:
+  Mean: 1.310
+  Std Dev: 0.010
+  Min: 1.294
+  Max: 1.326
+  Anomalies: 1 (7.1%)
+
++12V [V]:
+  Mean: 12.087
+  Std Dev: 0.014
+  Min: 12.038
+  Max: 12.091
+  Anomalies: 1 (7.1%)
+
+VDD (SWA) Voltage [V].1:
+  Mean: 1.396
+  Std Dev: 0.004
+  Min: 1.395
+  Max: 1.410
+  Anomalies: 1 (7.1%)
+
+VPP (SWC) Voltage [V].1:
+  Mean: 1.814
+  Std Dev: 0.004
+  Min: 1.800
+  Max: 1.815
+  Anomalies: 1 (7.1%)
+
+1.8V VOUT Voltage [V].1:
+  Mean: 1.801
+  Std Dev: 0.004
+  Min: 1.800
+  Max: 1.815
+  Anomalies: 1 (7.1%)
+
+GPU Rail Voltages (avg) [V]:
+  Mean: 12.041
+  Std Dev: 0.019
+  Min: 12.007
+  Max: 12.059
+  Anomalies: 1 (7.1%)
+
+GPU FBVDD Input Voltage [V]:
+  Mean: 12.095
+  Std Dev: 0.019
+  Min: 12.061
+  Max: 12.115
+  Anomalies: 1 (7.1%)
+
+GPU PCIe +12V Input Voltage [V]:
+  Mean: 11.956
+  Std Dev: 0.011
+  Min: 11.936
+  Max: 11.974
+  Anomalies: 1 (7.1%)
+
+GPU 12VHPWR Voltage [V]:
+  Mean: 12.072
+  Std Dev: 0.028
+  Min: 12.024
+  Max: 12.098
+  Anomalies: 1 (7.1%)
