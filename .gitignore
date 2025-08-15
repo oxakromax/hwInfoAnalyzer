@@ -83,7 +83,3 @@ Thumbs.db
 *_report.txt
 *_analysis.txt
 detailed_analysis.txt
-
-# Configuration files (keep examples)
-default_config.json
-preset_*.json
